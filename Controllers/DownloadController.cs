@@ -92,6 +92,11 @@ namespace RednoteDownloaderApi.Controllers
                 var rawBytes = await response.Content.ReadAsByteArrayAsync();
                 var htmlContent = System.Text.Encoding.UTF8.GetString(rawBytes);
 
+                // Xác định scheme (ưu tiên https khi chạy trên Cloud Render)
+                string scheme = Request.Headers.TryGetValue("X-Forwarded-Proto", out var proto) 
+                    ? proto.ToString() 
+                    : (Request.Host.Host.Contains("localhost") ? Request.Scheme : "https");
+
                 // 5. Phân tích dữ liệu JSON trạng thái gốc từ SSR (window.__INITIAL_STATE__)
                 var stateMatch = Regex.Match(htmlContent, @"window\.__INITIAL_STATE__\s*=\s*(\{.+?\})\s*</script>", RegexOptions.Singleline);
                 if (stateMatch.Success)
@@ -164,7 +169,7 @@ namespace RednoteDownloaderApi.Controllers
 
                                         if (!string.IsNullOrEmpty(videoUrl))
                                         {
-                                            string proxyDownloadUrl = $"{Request.Scheme}://{Request.Host}/api/download/proxy?fileUrl={Uri.EscapeDataString(videoUrl)}&fileName={Uri.EscapeDataString(SanitizeFileName(displayTitle))}.mp4";
+                                            string proxyDownloadUrl = $"{scheme}://{Request.Host}/api/download/proxy?fileUrl={Uri.EscapeDataString(videoUrl)}&fileName={Uri.EscapeDataString(SanitizeFileName(displayTitle))}.mp4";
 
                                             return Ok(new
                                             {
@@ -193,7 +198,7 @@ namespace RednoteDownloaderApi.Controllers
                                                 images.Add(new
                                                 {
                                                     url = imgUrl,
-                                                    download_url = $"{Request.Scheme}://{Request.Host}/api/download/proxy?fileUrl={Uri.EscapeDataString(imgUrl)}&fileName={Uri.EscapeDataString(SanitizeFileName(displayTitle))}_{index}.jpg"
+                                                    download_url = $"{scheme}://{Request.Host}/api/download/proxy?fileUrl={Uri.EscapeDataString(imgUrl)}&fileName={Uri.EscapeDataString(SanitizeFileName(displayTitle))}_{index}.jpg"
                                                 });
                                                 index++;
                                             }
@@ -244,7 +249,7 @@ namespace RednoteDownloaderApi.Controllers
                     type = "video",
                     title = "Rednote Video",
                     video_url = cleanVideoUrl,
-                    download_url = $"{Request.Scheme}://{Request.Host}/api/download/proxy?fileUrl={Uri.EscapeDataString(cleanVideoUrl)}&fileName=rednote_video.mp4"
+                    download_url = $"{scheme}://{Request.Host}/api/download/proxy?fileUrl={Uri.EscapeDataString(cleanVideoUrl)}&fileName=rednote_video.mp4"
                 });
             }
             catch (Exception ex)
