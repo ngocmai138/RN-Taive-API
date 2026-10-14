@@ -1,0 +1,18 @@
+## Visual Studio / .NET Core
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+.vs/
+.vscode/
+.idea/
+*.swp
+*.*~
+
+# OS Files
+.DS_Store
+Thumbs.db
