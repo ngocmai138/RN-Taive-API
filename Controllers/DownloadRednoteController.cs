@@ -6,12 +6,12 @@ namespace RednoteDownloaderApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DownloadController : ControllerBase
+    public class DownloadRednoteController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger<DownloadController> _logger;
+        private readonly ILogger<DownloadRednoteController> _logger;
 
-        public DownloadController(IHttpClientFactory httpClientFactory, ILogger<DownloadController> logger)
+        public DownloadRednoteController(IHttpClientFactory httpClientFactory, ILogger<DownloadRednoteController> logger)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
@@ -169,7 +169,7 @@ namespace RednoteDownloaderApi.Controllers
 
                                         if (!string.IsNullOrEmpty(videoUrl))
                                         {
-                                            string proxyDownloadUrl = $"{scheme}://{Request.Host}/api/download/proxy?fileUrl={Uri.EscapeDataString(videoUrl)}&fileName={Uri.EscapeDataString(SanitizeFileName(displayTitle))}.mp4";
+                                            string proxyDownloadUrl = $"{scheme}://{Request.Host}/api/DownloadRednote/proxy?fileUrl={Uri.EscapeDataString(videoUrl)}&fileName={Uri.EscapeDataString(SanitizeFileName(displayTitle))}.mp4";
 
                                             return Ok(new
                                             {
@@ -198,7 +198,7 @@ namespace RednoteDownloaderApi.Controllers
                                                 images.Add(new
                                                 {
                                                     url = imgUrl,
-                                                    download_url = $"{scheme}://{Request.Host}/api/download/proxy?fileUrl={Uri.EscapeDataString(imgUrl)}&fileName={Uri.EscapeDataString(SanitizeFileName(displayTitle))}_{index}.jpg"
+                                                    download_url = $"{scheme}://{Request.Host}/api/DownloadRednote/proxy?fileUrl={Uri.EscapeDataString(imgUrl)}&fileName={Uri.EscapeDataString(SanitizeFileName(displayTitle))}_{index}.jpg"
                                                 });
                                                 index++;
                                             }
@@ -249,7 +249,7 @@ namespace RednoteDownloaderApi.Controllers
                     type = "video",
                     title = "Rednote Video",
                     video_url = cleanVideoUrl,
-                    download_url = $"{scheme}://{Request.Host}/api/download/proxy?fileUrl={Uri.EscapeDataString(cleanVideoUrl)}&fileName=rednote_video.mp4"
+                    download_url = $"{scheme}://{Request.Host}/api/DownloadRednote/proxy?fileUrl={Uri.EscapeDataString(cleanVideoUrl)}&fileName=rednote_video.mp4"
                 });
             }
             catch (Exception ex)

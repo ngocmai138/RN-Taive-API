@@ -1,6 +1,6 @@
 @RednoteDownloaderApi_HostAddress = http://localhost:5025
 
-GET {{RednoteDownloaderApi_HostAddress}}/weatherforecast/
+GET {{RednoteDownloaderApi_HostAddress}}/api/DownloadRednote?url=https://www.xiaohongshu.com/
 Accept: application/json
 
 ###
