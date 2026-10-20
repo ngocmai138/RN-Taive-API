@@ -3,12 +3,12 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy file csproj và restore dependencies trước để tận dụng Docker cache
-COPY ["RednoteDownloaderApi.csproj", "./"]
-RUN dotnet restore "./RednoteDownloaderApi.csproj"
+COPY ["AutoHubApi.csproj", "./"]
+RUN dotnet restore "./AutoHubApi.csproj"
 
 # Copy toàn bộ mã nguồn và publish
 COPY . .
-RUN dotnet publish "./RednoteDownloaderApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./AutoHubApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Giai đoạn Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
