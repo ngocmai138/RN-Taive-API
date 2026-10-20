@@ -6,12 +6,12 @@ namespace RednoteDownloaderApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DownloadRednoteController : ControllerBase
+    public class RednoteController : ControllerBase
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ILogger<DownloadRednoteController> _logger;
+        private readonly ILogger<RednoteController> _logger;
 
-        public DownloadRednoteController(IHttpClientFactory httpClientFactory, ILogger<DownloadRednoteController> logger)
+        public RednoteController(IHttpClientFactory httpClientFactory, ILogger<RednoteController> logger)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;

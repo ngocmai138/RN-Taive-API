@@ -1,6 +1,18 @@
 @RednoteDownloaderApi_HostAddress = http://localhost:5025
 
+### Lấy thông tin bài viết Rednote / Xiaohongshu
 GET {{RednoteDownloaderApi_HostAddress}}/api/DownloadRednote?url=https://www.xiaohongshu.com/
 Accept: application/json
+
+###
+
+### Lấy thông tin video Douyin không logo (hỗ trợ link v.douyin.com hoặc đoạn text copy từ app)
+GET {{RednoteDownloaderApi_HostAddress}}/api/Douyin?url=https://v.douyin.com/tARczuuh-zg/
+Accept: application/json
+
+###
+
+### Tải trực tiếp file MP4 không logo từ Douyin
+GET {{RednoteDownloaderApi_HostAddress}}/api/Douyin/download?url=https://v.douyin.com/tARczuuh-zg/
 
 ###
