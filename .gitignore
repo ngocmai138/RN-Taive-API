@@ -16,3 +16,7 @@
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Local configuration files
+appsettings.Local.json
+appsettings.*.Local.json
