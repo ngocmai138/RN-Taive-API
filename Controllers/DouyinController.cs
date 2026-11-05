@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -238,7 +237,7 @@ namespace RednoteDownloaderApi.Controllers
             string ttwidCookie = _cachedTtwid;
             if (string.IsNullOrEmpty(ttwidCookie))
             {
-                ttwidCookie = await GetTtwidCookieAsync(douyinClient);
+                ttwidCookie = await GetTtwidCookieAsync(douyinClient, videoId);
                 if (!string.IsNullOrEmpty(ttwidCookie))
                 {
                     _cachedTtwid = ttwidCookie;
@@ -253,7 +252,7 @@ namespace RednoteDownloaderApi.Controllers
             if (!html.Contains("videoInfoRes"))
             {
                 _logger.LogInformation("HTML chưa có videoInfoRes, thử làm mới cookie ttwid...");
-                string freshTtwid = await GetTtwidCookieAsync(douyinClient);
+                string freshTtwid = await GetTtwidCookieAsync(douyinClient, videoId);
                 if (!string.IsNullOrEmpty(freshTtwid) && freshTtwid != ttwidCookie)
                 {
                     _cachedTtwid = freshTtwid;
@@ -411,66 +410,32 @@ namespace RednoteDownloaderApi.Controllers
             return await detailRes.Content.ReadAsStringAsync();
         }
 
-        private async Task<string> GetTtwidCookieAsync(HttpClient client)
+        private async Task<string> GetTtwidCookieAsync(HttpClient client, string videoId)
         {
-            // Cách 1: Đăng ký ttwid qua API chính thức của ByteDance (nhanh và chuẩn xác nhất)
             try
             {
-                using var regReq = new HttpRequestMessage(HttpMethod.Post, "https://ttwid.bytedance.com/ttwid/union/register/");
-                regReq.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+                using var request = new HttpRequestMessage(HttpMethod.Get, $"https://m.douyin.com/share/video/{videoId}");
+                using var response = await client.SendAsync(request);
 
-                var payload = new
-                {
-                    region = "cn",
-                    aid = 1768,
-                    needFid = false,
-                    service = "www.ixigua.com",
-                    migrate_info = new { ticket = "", source = "node" },
-                    cbUrlProtocol = "https",
-                    union = true
-                };
-                regReq.Content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-
-                using var regRes = await client.SendAsync(regReq);
-                if (regRes.Headers.TryGetValues("Set-Cookie", out var cookieHeaders))
+                if (response.Headers.TryGetValues("Set-Cookie", out var cookieHeaders))
                 {
                     foreach (var header in cookieHeaders)
                     {
                         var match = Regex.Match(header, @"ttwid=([^;]+)");
                         if (match.Success)
                         {
-                            _logger.LogInformation("Lấy ttwid thành công qua ttwid.bytedance.com: {Ttwid}", match.Groups[1].Value);
                             return match.Groups[1].Value;
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Không thể lấy cookie ttwid từ ttwid.bytedance.com, thử dự phòng");
-            }
-
-            // Cách 2: Dự phòng lấy từ trang chủ douyin.com
-            try
-            {
-                using var homeReq = new HttpRequestMessage(HttpMethod.Get, "https://www.douyin.com/");
-                homeReq.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-                using var homeRes = await client.SendAsync(homeReq);
-                if (homeRes.Headers.TryGetValues("Set-Cookie", out var homeCookies))
+                else
                 {
-                    foreach (var header in homeCookies)
-                    {
-                        var match = Regex.Match(header, @"ttwid=([^;]+)");
-                        if (match.Success)
-                        {
-                            return match.Groups[1].Value;
-                        }
-                    }
+                    _logger.LogWarning("Không thấy header Set-Cookie trong response từ m.douyin.com");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Không thể lấy cookie ttwid từ douyin.com");
+                _logger.LogWarning(ex, "Không thể lấy cookie ttwid từ m.douyin.com");
             }
 
             return string.Empty;
